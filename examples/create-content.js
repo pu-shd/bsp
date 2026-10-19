@@ -12,7 +12,7 @@
  * Prerequisites:
  * - Docker container running: docker-compose up -d
  * - Authenticated session saved: POST /login/save
- * - Node.js 18+ (uses built-in fetch)
+ * - Node.js 26 (uses built-in fetch)
  */
 
 const API_BASE = process.env.API_BASE || 'http://localhost:3000';
