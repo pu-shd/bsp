@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
+    "dev": "node --watch server.js",
     "test": "docker-compose --profile test run --rm test npm run test:all",
     "test:watch": "NODE_ENV=test npx jest --watch",
     "test:unit": "docker-compose --profile test run --rm test npm run test:unit:only",
@@ -29,7 +29,6 @@
   "devDependencies": {
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
-    "nodemon": "^3.1.14",
     "supertest": "^7.3.0"
   },
   "overrides": {
