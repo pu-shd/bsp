@@ -20,6 +20,10 @@ describe('package-lock.json dependency policy', () => {
     expect(installedCopies('sprintf-js')).toEqual([]);
   });
 
+  test('braces is not installed (GHSA-vfj7-8cjw-p6xm, no patched release)', () => {
+    expect(installedCopies('braces')).toEqual([]);
+  });
+
   test('js-yaml copies are all at major version 4 or later', () => {
     const copies = installedCopies('js-yaml');
     expect(copies.length).toBeGreaterThan(0);
