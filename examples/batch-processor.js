@@ -7,7 +7,7 @@
  * of Drupal content across multiple pages.
  *
  * Usage: node examples/batch-processor.js
- * Requires: Node.js 18+ (uses built-in fetch)
+ * Requires: Node.js 26 (uses built-in fetch)
  */
 
 class DrupalContentBatchProcessor {
