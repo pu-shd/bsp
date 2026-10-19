@@ -17,7 +17,7 @@ An API for the Drupal UI when the actual API is MIA.
 
 ### Prerequisites
 - Docker & Docker Compose
-- Node.js 18+ (for local development and JS examples)
+- Node.js 26 (for local development and JS examples; `nvm use` reads `.nvmrc`)
 - Conda/Miniconda (for Python examples)
 
 ### 1. Launch Platform
