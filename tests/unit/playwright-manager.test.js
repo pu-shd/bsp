@@ -1,34 +1,36 @@
-const PlaywrightManager = require('../../src/playwrightManager');
-const { chromium } = require('playwright');
+const { mockModule } = require('../helpers/mock-module');
 
-// Mock Playwright
-jest.mock('playwright', () => ({
+// Mock Playwright before the code under test requires it.
+mockModule('playwright', {
   chromium: {
-    launch: jest.fn().mockResolvedValue({
-      contexts: jest.fn().mockReturnValue([]),
-      newContext: jest.fn().mockResolvedValue({
-        newPage: jest.fn().mockResolvedValue({
-          url: jest.fn().mockReturnValue('about:blank'),
-          title: jest.fn().mockResolvedValue('Test Page'),
-          evaluate: jest.fn().mockResolvedValue('Test Title'),
-          screenshot: jest.fn().mockRejectedValue(new Error('Timeout')),
-          goto: jest.fn().mockResolvedValue(),
-          on: jest.fn().mockImplementation(() => {}),
-          close: jest.fn().mockResolvedValue(),
+    launch: vi.fn().mockResolvedValue({
+      contexts: vi.fn().mockReturnValue([]),
+      newContext: vi.fn().mockResolvedValue({
+        newPage: vi.fn().mockResolvedValue({
+          url: vi.fn().mockReturnValue('about:blank'),
+          title: vi.fn().mockResolvedValue('Test Page'),
+          evaluate: vi.fn().mockResolvedValue('Test Title'),
+          screenshot: vi.fn().mockRejectedValue(new Error('Timeout')),
+          goto: vi.fn().mockResolvedValue(),
+          on: vi.fn().mockImplementation(() => {}),
+          close: vi.fn().mockResolvedValue(),
         }),
-        close: jest.fn().mockResolvedValue(),
+        close: vi.fn().mockResolvedValue(),
       }),
-      close: jest.fn().mockResolvedValue(),
+      close: vi.fn().mockResolvedValue(),
     }),
   },
-}));
+});
+
+const PlaywrightManager = require('../../src/playwrightManager');
+const { chromium } = require('playwright');
 
 describe('PlaywrightManager Unit Tests', () => {
   let manager;
 
   beforeEach(() => {
     // Clear all mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Clean up environment variables from previous tests
     delete process.env.KEEPALIVE_ENABLED;
@@ -154,12 +156,12 @@ describe('PlaywrightManager Unit Tests', () => {
       // Clear environment variables before each test
       delete process.env.KEEPALIVE_ENABLED;
       delete process.env.KEEPALIVE_INTERVAL_MINUTES;
-      jest.clearAllTimers();
-      jest.useFakeTimers();
+      vi.clearAllTimers();
+      vi.useFakeTimers();
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     test('should initialize with keepalive enabled by default', () => {
@@ -189,7 +191,7 @@ describe('PlaywrightManager Unit Tests', () => {
 
     test('should constrain interval to minimum (5 minutes)', () => {
       process.env.KEEPALIVE_INTERVAL_MINUTES = '1';
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
       const mgr = new PlaywrightManager();
       expect(mgr.keepaliveIntervalMinutes).toBe(5);
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('out of range'));
@@ -199,7 +201,7 @@ describe('PlaywrightManager Unit Tests', () => {
 
     test('should constrain interval to maximum (1440 minutes)', () => {
       process.env.KEEPALIVE_INTERVAL_MINUTES = '10000';
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
       const mgr = new PlaywrightManager();
       expect(mgr.keepaliveIntervalMinutes).toBe(1440);
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('out of range'));
@@ -209,7 +211,7 @@ describe('PlaywrightManager Unit Tests', () => {
 
     test('should accept valid interval within range', () => {
       process.env.KEEPALIVE_INTERVAL_MINUTES = '30';
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
       const mgr = new PlaywrightManager();
       expect(mgr.keepaliveIntervalMinutes).toBe(30);
       expect(consoleSpy).not.toHaveBeenCalled();
@@ -254,7 +256,7 @@ describe('PlaywrightManager Unit Tests', () => {
     test('startKeepalive should not start when disabled', () => {
       process.env.KEEPALIVE_ENABLED = 'false';
       const mgr = new PlaywrightManager();
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
 
       mgr.startKeepalive();
 
@@ -264,7 +266,7 @@ describe('PlaywrightManager Unit Tests', () => {
     });
 
     test('startKeepalive should stop existing keepalive before starting new one', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
       const firstInterval = setInterval(() => {}, 1000);
       manager.keepaliveInterval = firstInterval;
 
@@ -282,7 +284,7 @@ describe('PlaywrightManager Unit Tests', () => {
     test('startKeepalive should set up interval correctly', () => {
       process.env.KEEPALIVE_INTERVAL_MINUTES = '30';
       const mgr = new PlaywrightManager();
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
 
       mgr.startKeepalive();
 
@@ -296,7 +298,7 @@ describe('PlaywrightManager Unit Tests', () => {
 
     test('stopKeepalive should clear interval', () => {
       manager.keepaliveInterval = setInterval(() => {}, 1000);
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
 
       manager.stopKeepalive();
 
@@ -306,7 +308,7 @@ describe('PlaywrightManager Unit Tests', () => {
     });
 
     test('stopKeepalive should handle being called when not running', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
 
       manager.stopKeepalive();
 
@@ -317,12 +319,12 @@ describe('PlaywrightManager Unit Tests', () => {
 
     test('close should stop keepalive', async () => {
       // Use real timers for this test since createInteractiveContext uses setTimeout
-      jest.useRealTimers();
+      vi.useRealTimers();
 
       await manager.createInteractiveContext();
 
       // Switch back to fake timers after browser launch completes
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       manager.keepaliveInterval = setInterval(() => {}, 1000);
 
       await manager.close();
@@ -346,7 +348,7 @@ describe('PlaywrightManager Unit Tests', () => {
     });
 
     test('startKeepalive should reset circuit breaker state', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
 
       // Simulate a circuit breaker state
       manager.keepaliveConsecutiveFailures = 2;

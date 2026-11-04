@@ -13,7 +13,16 @@ describe('package-lock.json dependency policy', () => {
   test('lockfile lists installed packages', () => {
     // Guards against the checks below passing vacuously on an empty or malformed lockfile.
     expect(lockfile.lockfileVersion).toBeGreaterThanOrEqual(2);
-    expect(installedCopies('jest').length).toBeGreaterThan(0);
+    expect(installedCopies('vitest').length).toBeGreaterThan(0);
+  });
+
+  test('deepmerge is not installed (GHSA-gcqx-w48m-w2h4, no patched release)', () => {
+    expect(installedCopies('deepmerge')).toEqual([]);
+  });
+
+  test('jest is not installed (replaced by vitest; jest-config requires deepmerge)', () => {
+    expect(installedCopies('jest')).toEqual([]);
+    expect(installedCopies('jest-config')).toEqual([]);
   });
 
   test('sprintf-js is not installed (GHSA-hp3w-g68c-fv3c, no patched release)', () => {
@@ -25,8 +34,8 @@ describe('package-lock.json dependency policy', () => {
   });
 
   test('js-yaml copies are all at major version 4 or later', () => {
+    // No copies is compliant; the first test guards against an empty lockfile.
     const copies = installedCopies('js-yaml');
-    expect(copies.length).toBeGreaterThan(0);
     const outdated = copies
       .map((key) => `${key}@${packages[key].version}`)
       .filter((entry) => !(Number(entry.split('@').pop().split('.')[0]) >= 4));
@@ -34,8 +43,8 @@ describe('package-lock.json dependency policy', () => {
   });
 
   test('minimatch copies are all at 11.0.1 or later (GHSA-g3hv-75wg-m249)', () => {
+    // No copies is compliant; the first test guards against an empty lockfile.
     const copies = installedCopies('minimatch');
-    expect(copies.length).toBeGreaterThan(0);
     const vulnerable = copies
       .map((key) => `${key}@${packages[key].version}`)
       .filter((entry) => {

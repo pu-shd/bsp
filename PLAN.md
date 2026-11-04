@@ -7,7 +7,7 @@ This project provides an automation platform that drives a Drupal 10 web UI in a
 - Programmatic (Playwright) UI automation for login, content creation and other flows.
 - An interactive headful login flow by exposing a VNC/noVNC UI to human operators.
 - Persistent Playwright browser context (storageState) so long-lived sessions can be reused.
-- A test suite (Jest + Supertest) for the API surface and key behaviors.
+- A test suite (Vitest + Supertest) for the API surface and key behaviors.
 
 Goals
 
@@ -87,7 +87,7 @@ Error modes and retry semantics:
 
 Tests
 
-- Unit tests (Jest) for server routes: mock the Playwright manager to test route behavior, responses, and error handling.
+- Unit tests (Vitest) for server routes: mock the Playwright manager to test route behavior, responses, and error handling.
 - Integration tests (Supertest) for the API surface. These tests can run in CI using a headless configuration that provides an isolated Playwright browser.
 - End-to-end tests (optional): run the service inside a Docker test image and use Playwright to exercise full interactive login and content creation flows.
 
@@ -101,7 +101,7 @@ Developer onboarding notes
   - `supervisord.conf` — manages Xvfb, x11vnc, websockify and the Node process when running the headful image.
 - How to run locally (dev):
   - Build the Docker image and run via docker-compose.
-  - For tests: `npm test` runs Jest unit tests. Integration tests may require a running container.
+  - For tests: `npm test` runs Vitest unit tests. Integration tests may require a running container.
 
 Observability & Debugging
 

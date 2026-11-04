@@ -1,6 +1,6 @@
 const PlaywrightManager = require('../../src/playwrightManager');
 
-jest.setTimeout(30000);
+vi.setConfig({ testTimeout: 30000, hookTimeout: 30000 });
 
 describe('PlaywrightManager - Content Update', () => {
   let manager;
@@ -13,16 +13,16 @@ describe('PlaywrightManager - Content Update', () => {
     // Create mock locator factory for proper chaining
     function createMockLocator() {
       const locator = {
-        count: jest.fn().mockResolvedValue(1),
-        fill: jest.fn().mockResolvedValue(undefined),
-        check: jest.fn().mockResolvedValue(undefined),
-        uncheck: jest.fn().mockResolvedValue(undefined),
-        selectOption: jest.fn().mockResolvedValue(undefined),
-        click: jest.fn().mockResolvedValue(undefined),
-        getAttribute: jest.fn().mockResolvedValue('text'),
+        count: vi.fn().mockResolvedValue(1),
+        fill: vi.fn().mockResolvedValue(undefined),
+        check: vi.fn().mockResolvedValue(undefined),
+        uncheck: vi.fn().mockResolvedValue(undefined),
+        selectOption: vi.fn().mockResolvedValue(undefined),
+        click: vi.fn().mockResolvedValue(undefined),
+        getAttribute: vi.fn().mockResolvedValue('text'),
         // Real locators expose evaluate(); field-type inference uses it
-        evaluate: jest.fn().mockResolvedValue('input'),
-        first: jest.fn()
+        evaluate: vi.fn().mockResolvedValue('input'),
+        first: vi.fn()
       };
       locator.first.mockImplementation(() => createMockLocator());
       return locator;
@@ -31,27 +31,27 @@ describe('PlaywrightManager - Content Update', () => {
 
     // Create mock page
     mockPage = {
-      goto: jest.fn().mockResolvedValue(undefined),
-      url: jest.fn().mockReturnValue('https://example.com/node/123/edit'),
-      waitForSelector: jest.fn().mockResolvedValue(undefined),
-      waitForURL: jest.fn().mockResolvedValue(undefined),
-      locator: jest.fn().mockReturnValue(mockLocator),
-      evaluate: jest.fn().mockResolvedValue('article'),
-      title: jest.fn().mockResolvedValue('Edit Article')
+      goto: vi.fn().mockResolvedValue(undefined),
+      url: vi.fn().mockReturnValue('https://example.com/node/123/edit'),
+      waitForSelector: vi.fn().mockResolvedValue(undefined),
+      waitForURL: vi.fn().mockResolvedValue(undefined),
+      locator: vi.fn().mockReturnValue(mockLocator),
+      evaluate: vi.fn().mockResolvedValue('article'),
+      title: vi.fn().mockResolvedValue('Edit Article')
     };
 
     // Create mock context
     mockContext = {
-      newPage: jest.fn().mockResolvedValue(mockPage),
-      storageState: jest.fn().mockResolvedValue({ cookies: [], origins: [] }),
-      close: jest.fn().mockResolvedValue(undefined)
+      newPage: vi.fn().mockResolvedValue(mockPage),
+      storageState: vi.fn().mockResolvedValue({ cookies: [], origins: [] }),
+      close: vi.fn().mockResolvedValue(undefined)
     };
 
     // Create mock browser
     mockBrowser = {
-      newContext: jest.fn().mockResolvedValue(mockContext),
-      close: jest.fn().mockResolvedValue(undefined),
-      contexts: jest.fn().mockReturnValue([])
+      newContext: vi.fn().mockResolvedValue(mockContext),
+      close: vi.fn().mockResolvedValue(undefined),
+      contexts: vi.fn().mockReturnValue([])
     };
 
     // Create manager instance and inject mocks
@@ -65,7 +65,7 @@ describe('PlaywrightManager - Content Update', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('updateContent', () => {

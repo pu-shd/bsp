@@ -1,5 +1,5 @@
 /**
- * @jest-environment jsdom
+ * @vitest-environment jsdom
  *
  * Exercises the admin/content table parser inside queryContent() against the
  * markup Drupal actually renders, including the bulk-operations checkbox column
@@ -8,7 +8,11 @@
 
 // Playwright's bundle does not load under the jsdom environment, and this
 // suite never launches a browser - the in-page callback runs against jsdom.
-jest.mock('playwright', () => ({ chromium: { launch: jest.fn() } }));
+
+const { mockModule } = require('../helpers/mock-module');
+
+// Mock Playwright before the code under test requires it.
+mockModule('playwright', { chromium: { launch: vi.fn() } });
 
 const PlaywrightManager = require('../../src/playwrightManager');
 
@@ -35,10 +39,8 @@ const ADMIN_CONTENT_HTML = `
       <td>Published<div class="restricted-indicator">Restricted</div></td>
       <td>03/27/26 - 11:24 am
 
-
 bino</td>
       <td>04/30/26 - 10:46 am
-
 
 cdreyer</td>
       <td>
@@ -56,10 +58,8 @@ cdreyer</td>
       <td>Published</td>
       <td>04/29/25 - 2:08 pm
 
-
 bino</td>
       <td>05/01/26 - 8:31 am
-
 
 cdreyer</td>
       <td><ul class="dropbutton"><li class="edit"><a href="/node/1/edit?destination=/admin/content">Edit</a></li></ul></td>
@@ -71,10 +71,8 @@ cdreyer</td>
       <td>Unpublished</td>
       <td>03/27/26 - 4:32 pm
 
-
 bino</td>
       <td>05/01/26 - 12:00 am
-
 
 cdreyer</td>
       <td><ul class="dropbutton"><li class="edit"><a href="/node/706/edit?destination=/admin/content">Edit</a></li></ul></td>
@@ -109,18 +107,18 @@ describe('PlaywrightManager - admin/content listing parser', () => {
 
     manager = new PlaywrightManager();
     manager.page = {
-      url: jest.fn().mockReturnValue('https://symposium.orfe.princeton.edu/admin/content'),
-      goto: jest.fn().mockResolvedValue(undefined),
-      waitForSelector: jest.fn().mockResolvedValue(undefined),
+      url: vi.fn().mockReturnValue('https://symposium.orfe.princeton.edu/admin/content'),
+      goto: vi.fn().mockResolvedValue(undefined),
+      waitForSelector: vi.fn().mockResolvedValue(undefined),
       // Run the in-page callback against jsdom rather than a real browser
-      evaluate: jest.fn().mockImplementation((fn, arg) => Promise.resolve(fn(arg)))
+      evaluate: vi.fn().mockImplementation((fn, arg) => Promise.resolve(fn(arg)))
     };
 
-    jest.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     delete process.env.BASE_URL;
     document.body.innerHTML = '';
   });
