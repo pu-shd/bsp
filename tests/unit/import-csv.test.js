@@ -129,7 +129,7 @@ describe('import-csv - createNode', () => {
   let fetchMock;
 
   beforeEach(() => {
-    fetchMock = jest.fn();
+    fetchMock = vi.fn();
     global.fetch = fetchMock;
   });
 

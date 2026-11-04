@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 
 const app = require('../../server');
 
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000, hookTimeout: 60000 });
 
 // Determine test target based on environment
 const isInContainer = process.env.NODE_ENV === 'test';
@@ -66,8 +66,8 @@ describe('Browser Auto-Launch and Navigation Tests', () => {
     try {
       console.log('Performing final cleanup...');
       const { execSync } = require('child_process');
-      execSync('pkill -f chromium || true');
-      execSync('pkill -f chrome || true');
+      // Only Playwright-managed browsers, never the developer's own Chrome.
+      execSync("pkill -f '[m]s-playwright/' || true");
       console.log('Final cleanup completed');
     } catch (error) {
       console.log('Final cleanup completed (some processes may not have been running)');
