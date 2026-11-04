@@ -14,7 +14,7 @@ describe('CommandQueue', () => {
 
   describe('Basic Operations', () => {
     test('should execute a single command', async () => {
-      const mockFn = jest.fn(async () => 'result');
+      const mockFn = vi.fn(async () => 'result');
       const result = await queue.enqueue(mockFn, { name: 'test-command' });
 
       expect(mockFn).toHaveBeenCalledTimes(1);
@@ -24,19 +24,19 @@ describe('CommandQueue', () => {
     test('should execute multiple commands sequentially', async () => {
       const executionOrder = [];
 
-      const cmd1 = jest.fn(async () => {
+      const cmd1 = vi.fn(async () => {
         executionOrder.push(1);
         await new Promise(resolve => setTimeout(resolve, 50));
         return 'cmd1';
       });
 
-      const cmd2 = jest.fn(async () => {
+      const cmd2 = vi.fn(async () => {
         executionOrder.push(2);
         await new Promise(resolve => setTimeout(resolve, 30));
         return 'cmd2';
       });
 
-      const cmd3 = jest.fn(async () => {
+      const cmd3 = vi.fn(async () => {
         executionOrder.push(3);
         return 'cmd3';
       });
@@ -63,11 +63,11 @@ describe('CommandQueue', () => {
 
     test('should handle command errors gracefully', async () => {
       const errorMsg = 'Command failed';
-      const failingCmd = jest.fn(async () => {
+      const failingCmd = vi.fn(async () => {
         throw new Error(errorMsg);
       });
 
-      const successCmd = jest.fn(async () => 'success');
+      const successCmd = vi.fn(async () => 'success');
 
       // First command fails
       const failPromise = queue.enqueue(failingCmd, { name: 'failing-cmd' });
@@ -90,7 +90,7 @@ describe('CommandQueue', () => {
   describe('Timeout Handling', () => {
     test('should timeout commands that exceed timeout limit', async () => {
       let resolveSlowCmd;
-      const slowCmd = jest.fn(async () => {
+      const slowCmd = vi.fn(async () => {
         await new Promise(resolve => { resolveSlowCmd = resolve; });
         return 'too-slow';
       });
@@ -108,7 +108,7 @@ describe('CommandQueue', () => {
     });
 
     test('should use default timeout when not specified', async () => {
-      const fastCmd = jest.fn(async () => {
+      const fastCmd = vi.fn(async () => {
         await new Promise(resolve => setTimeout(resolve, 50));
         return 'fast';
       });
@@ -127,7 +127,7 @@ describe('CommandQueue', () => {
       expect(status.currentCommand).toBeNull();
 
       // Add a long-running command
-      const longRunning = jest.fn(async () => {
+      const longRunning = vi.fn(async () => {
         await new Promise(resolve => setTimeout(resolve, 200));
         return 'done';
       });
@@ -154,13 +154,13 @@ describe('CommandQueue', () => {
     });
 
     test('should show pending commands in status', async () => {
-      const blockingCmd = jest.fn(async () => {
+      const blockingCmd = vi.fn(async () => {
         await new Promise(resolve => setTimeout(resolve, 100));
         return 'blocking';
       });
 
-      const pendingCmd1 = jest.fn(async () => 'pending1');
-      const pendingCmd2 = jest.fn(async () => 'pending2');
+      const pendingCmd1 = vi.fn(async () => 'pending1');
+      const pendingCmd2 = vi.fn(async () => 'pending2');
 
       // Enqueue blocking command first
       const promise1 = queue.enqueue(blockingCmd, { name: 'blocker' });
@@ -181,9 +181,9 @@ describe('CommandQueue', () => {
     });
 
     test('should track statistics correctly', async () => {
-      const cmd1 = jest.fn(async () => 'success1');
-      const cmd2 = jest.fn(async () => { throw new Error('fail'); });
-      const cmd3 = jest.fn(async () => 'success2');
+      const cmd1 = vi.fn(async () => 'success1');
+      const cmd2 = vi.fn(async () => { throw new Error('fail'); });
+      const cmd3 = vi.fn(async () => 'success2');
 
       // Enqueue all commands and wait for them to complete
       const p1 = queue.enqueue(cmd1, { name: 'cmd1' });
@@ -213,13 +213,13 @@ describe('CommandQueue', () => {
 
   describe('Queue Clearing', () => {
     test('should clear pending commands', async () => {
-      const blockingCmd = jest.fn(async () => {
+      const blockingCmd = vi.fn(async () => {
         await new Promise(resolve => setTimeout(resolve, 100));
         return 'blocking';
       });
 
-      const pendingCmd1 = jest.fn(async () => 'pending1');
-      const pendingCmd2 = jest.fn(async () => 'pending2');
+      const pendingCmd1 = vi.fn(async () => 'pending1');
+      const pendingCmd2 = vi.fn(async () => 'pending2');
 
       // Enqueue commands
       const promise1 = queue.enqueue(blockingCmd, { name: 'blocker' });
@@ -261,7 +261,7 @@ describe('CommandQueue', () => {
 
       // Create 10 commands that will be enqueued simultaneously
       const promises = Array.from({ length: 10 }, (_, i) => {
-        const cmd = jest.fn(async () => {
+        const cmd = vi.fn(async () => {
           executionOrder.push(i);
           await new Promise(resolve => setTimeout(resolve, 10));
           return `result-${i}`;

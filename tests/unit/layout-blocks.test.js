@@ -1,12 +1,15 @@
 /**
- * @jest-environment jsdom
+ * @vitest-environment jsdom
  *
  * Layout Builder block discovery and editing. Blocks are addressed by section
  * delta + region + UUID, and edits are staged in a tempstore until the layout
  * is saved - both behaviours are covered here.
  */
 
-jest.mock('playwright', () => ({ chromium: { launch: jest.fn() } }));
+const { mockModule } = require('../helpers/mock-module');
+
+// Mock Playwright before the code under test requires it.
+mockModule('playwright', { chromium: { launch: vi.fn() } });
 
 const PlaywrightManager = require('../../src/playwrightManager');
 
@@ -43,21 +46,21 @@ describe('PlaywrightManager - Layout Builder', () => {
 
     manager = new PlaywrightManager();
     manager.page = {
-      url: jest.fn().mockReturnValue('https://example.com/node/1/layout'),
-      goto: jest.fn().mockResolvedValue(undefined),
-      waitForSelector: jest.fn().mockResolvedValue(undefined),
-      waitForLoadState: jest.fn().mockResolvedValue(undefined),
-      locator: jest.fn(),
-      evaluate: jest.fn().mockImplementation((fn, arg) => Promise.resolve(fn(arg)))
+      url: vi.fn().mockReturnValue('https://example.com/node/1/layout'),
+      goto: vi.fn().mockResolvedValue(undefined),
+      waitForSelector: vi.fn().mockResolvedValue(undefined),
+      waitForLoadState: vi.fn().mockResolvedValue(undefined),
+      locator: vi.fn(),
+      evaluate: vi.fn().mockImplementation((fn, arg) => Promise.resolve(fn(arg)))
     };
 
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     delete process.env.BASE_URL;
     document.body.innerHTML = '';
   });
@@ -189,18 +192,18 @@ describe('PlaywrightManager - Layout Builder', () => {
 
     beforeEach(() => {
       submitLocator = {
-        count: jest.fn().mockResolvedValue(1),
-        click: jest.fn().mockResolvedValue(undefined)
+        count: vi.fn().mockResolvedValue(1),
+        click: vi.fn().mockResolvedValue(undefined)
       };
       manager.page.locator.mockReturnValue({ first: () => submitLocator });
     });
 
     test('stages the change without saving the layout by default', async () => {
-      jest.spyOn(manager, 'updateFormFields').mockResolvedValue({
+      vi.spyOn(manager, 'updateFormFields').mockResolvedValue({
         updated: [{ field: 'settings[label]', value: 'New' }],
         skipped: []
       });
-      const saveSpy = jest.spyOn(manager, 'saveLayout');
+      const saveSpy = vi.spyOn(manager, 'saveLayout');
 
       const result = await manager.updateLayoutBlock(1, 2, 'content', 'abc', { 'settings[label]': 'New' });
 
@@ -211,11 +214,11 @@ describe('PlaywrightManager - Layout Builder', () => {
     });
 
     test('saves the layout when asked to', async () => {
-      jest.spyOn(manager, 'updateFormFields').mockResolvedValue({
+      vi.spyOn(manager, 'updateFormFields').mockResolvedValue({
         updated: [{ field: 'settings[label]', value: 'New' }],
         skipped: []
       });
-      jest.spyOn(manager, 'saveLayout').mockResolvedValue({ success: true });
+      vi.spyOn(manager, 'saveLayout').mockResolvedValue({ success: true });
 
       const result = await manager.updateLayoutBlock(
         1, 2, 'content', 'abc', { 'settings[label]': 'New' }, { save: true }
@@ -226,11 +229,11 @@ describe('PlaywrightManager - Layout Builder', () => {
     });
 
     test('reports failure when the layout save fails', async () => {
-      jest.spyOn(manager, 'updateFormFields').mockResolvedValue({
+      vi.spyOn(manager, 'updateFormFields').mockResolvedValue({
         updated: [{ field: 'settings[label]', value: 'New' }],
         skipped: []
       });
-      jest.spyOn(manager, 'saveLayout').mockResolvedValue({ success: false, error: 'save blew up' });
+      vi.spyOn(manager, 'saveLayout').mockResolvedValue({ success: false, error: 'save blew up' });
 
       const result = await manager.updateLayoutBlock(
         1, 2, 'content', 'abc', { 'settings[label]': 'New' }, { save: true }
@@ -241,7 +244,7 @@ describe('PlaywrightManager - Layout Builder', () => {
     });
 
     test('does not submit when no field resolved', async () => {
-      jest.spyOn(manager, 'updateFormFields').mockResolvedValue({
+      vi.spyOn(manager, 'updateFormFields').mockResolvedValue({
         updated: [],
         skipped: [{ field: 'settings[nope]', reason: 'Field not found' }]
       });
@@ -254,7 +257,7 @@ describe('PlaywrightManager - Layout Builder', () => {
     });
 
     test('fails when the Update button is missing', async () => {
-      jest.spyOn(manager, 'updateFormFields').mockResolvedValue({
+      vi.spyOn(manager, 'updateFormFields').mockResolvedValue({
         updated: [{ field: 'settings[label]', value: 'New' }],
         skipped: []
       });
@@ -267,7 +270,7 @@ describe('PlaywrightManager - Layout Builder', () => {
     });
 
     test('block forms are filled without a content type schema', async () => {
-      const spy = jest.spyOn(manager, 'updateFormFields').mockResolvedValue({
+      const spy = vi.spyOn(manager, 'updateFormFields').mockResolvedValue({
         updated: [{ field: 'settings[label]', value: 'New' }],
         skipped: []
       });
@@ -283,8 +286,8 @@ describe('PlaywrightManager - Layout Builder', () => {
 
     beforeEach(() => {
       button = {
-        count: jest.fn().mockResolvedValue(1),
-        click: jest.fn().mockResolvedValue(undefined)
+        count: vi.fn().mockResolvedValue(1),
+        click: vi.fn().mockResolvedValue(undefined)
       };
       manager.page.locator.mockReturnValue({ first: () => button });
     });

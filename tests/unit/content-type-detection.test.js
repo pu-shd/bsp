@@ -1,11 +1,14 @@
 /**
- * @jest-environment jsdom
+ * @vitest-environment jsdom
  *
  * Content type detection drives schema loading, so a machine name with an
  * underscore (ps_events, blog_post) must survive detection intact.
  */
 
-jest.mock('playwright', () => ({ chromium: { launch: jest.fn() } }));
+const { mockModule } = require('../helpers/mock-module');
+
+// Mock Playwright before the code under test requires it.
+mockModule('playwright', { chromium: { launch: vi.fn() } });
 
 const PlaywrightManager = require('../../src/playwrightManager');
 
@@ -15,13 +18,13 @@ describe('PlaywrightManager - detectContentType', () => {
   beforeEach(() => {
     manager = new PlaywrightManager();
     manager.page = {
-      evaluate: jest.fn().mockImplementation(fn => Promise.resolve(fn()))
+      evaluate: vi.fn().mockImplementation(fn => Promise.resolve(fn()))
     };
-    jest.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     document.body.innerHTML = '';
   });
 

@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../../server');
 
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000, hookTimeout: 60000 });
 
 describe('Content Creation API Tests', () => {
   let testApp;
