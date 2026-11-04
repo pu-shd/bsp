@@ -13,7 +13,16 @@ describe('package-lock.json dependency policy', () => {
   test('lockfile lists installed packages', () => {
     // Guards against the checks below passing vacuously on an empty or malformed lockfile.
     expect(lockfile.lockfileVersion).toBeGreaterThanOrEqual(2);
-    expect(installedCopies('jest').length).toBeGreaterThan(0);
+    expect(installedCopies('vitest').length).toBeGreaterThan(0);
+  });
+
+  test('deepmerge is not installed (GHSA-gcqx-w48m-w2h4, no patched release)', () => {
+    expect(installedCopies('deepmerge')).toEqual([]);
+  });
+
+  test('jest is not installed (replaced by vitest; jest-config requires deepmerge)', () => {
+    expect(installedCopies('jest')).toEqual([]);
+    expect(installedCopies('jest-config')).toEqual([]);
   });
 
   test('sprintf-js is not installed (GHSA-hp3w-g68c-fv3c, no patched release)', () => {
