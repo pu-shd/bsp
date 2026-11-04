@@ -32,4 +32,16 @@ describe('package-lock.json dependency policy', () => {
       .filter((entry) => !(Number(entry.split('@').pop().split('.')[0]) >= 4));
     expect(outdated).toEqual([]);
   });
+
+  test('minimatch copies are all at 11.0.1 or later (GHSA-g3hv-75wg-m249)', () => {
+    const copies = installedCopies('minimatch');
+    expect(copies.length).toBeGreaterThan(0);
+    const vulnerable = copies
+      .map((key) => `${key}@${packages[key].version}`)
+      .filter((entry) => {
+        const [major, minor, patch] = entry.split('@').pop().split('.').map(Number);
+        return !(major > 11 || (major === 11 && (minor > 0 || patch >= 1)));
+      });
+    expect(vulnerable).toEqual([]);
+  });
 });
