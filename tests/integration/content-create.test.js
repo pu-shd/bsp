@@ -60,8 +60,8 @@ describe('Content Creation API Tests', () => {
     try {
       console.log('Performing final cleanup...');
       const { execSync } = require('child_process');
-      execSync('pkill -f chromium || true');
-      execSync('pkill -f chrome || true');
+      // Only Playwright-managed browsers, never the developer's own Chrome.
+      execSync("pkill -f '[m]s-playwright/' || true");
     } catch (error) {
       // Ignore cleanup errors
     }
