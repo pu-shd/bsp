@@ -8,8 +8,8 @@ describe('PlaywrightManager - Extra HTTP Headers', () => {
   beforeEach(() => {
     delete process.env.EXTRA_HTTP_HEADERS;
     manager = new PlaywrightManager();
-    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -96,15 +96,15 @@ describe('PlaywrightManager - Extra HTTP Headers', () => {
 
     beforeEach(() => {
       mockPage = {
-        goto: jest.fn().mockResolvedValue(undefined),
-        on: jest.fn(),
-        url: jest.fn().mockReturnValue('about:blank')
+        goto: vi.fn().mockResolvedValue(undefined),
+        on: vi.fn(),
+        url: vi.fn().mockReturnValue('about:blank')
       };
-      mockContext = { newPage: jest.fn().mockResolvedValue(mockPage) };
-      mockBrowser = { newContext: jest.fn().mockResolvedValue(mockContext) };
+      mockContext = { newPage: vi.fn().mockResolvedValue(mockPage) };
+      mockBrowser = { newContext: vi.fn().mockResolvedValue(mockContext) };
 
-      jest.spyOn(manager, 'launchBrowser').mockResolvedValue(mockBrowser);
-      jest.spyOn(manager, 'ensureStorageDir').mockResolvedValue(undefined);
+      vi.spyOn(manager, 'launchBrowser').mockResolvedValue(mockBrowser);
+      vi.spyOn(manager, 'ensureStorageDir').mockResolvedValue(undefined);
     });
 
     test('interactive context receives the configured headers', async () => {
@@ -125,7 +125,7 @@ describe('PlaywrightManager - Extra HTTP Headers', () => {
       process.env.BASE_URL = 'https://example.com';
 
       const fs = require('fs').promises;
-      const readFileSpy = jest
+      const readFileSpy = vi
         .spyOn(fs, 'readFile')
         .mockResolvedValue(JSON.stringify({ cookies: [], origins: [] }));
 

@@ -1,6 +1,7 @@
-const { execSync } = require('child_process');
+import { execSync } from 'node:child_process';
 
-module.exports = async () => {
+// Runs once after all test files: clean up Playwright processes.
+export async function teardown() {
   console.log('Running global test teardown...');
 
   try {
@@ -13,10 +14,10 @@ module.exports = async () => {
     execSync('pkill -f playwright || true', { stdio: 'inherit' });
 
     console.log('Browser cleanup completed');
-  } catch (error) {
+  } catch {
     console.log('Cleanup completed (some processes may not have been running)');
   }
 
   // Give processes time to terminate
-  await new Promise(resolve => setTimeout(resolve, 1000));
-};
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+}
