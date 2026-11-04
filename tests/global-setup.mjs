@@ -5,13 +5,12 @@ export async function teardown() {
   console.log('Running global test teardown...');
 
   try {
-    // Kill any remaining Chromium processes
-    console.log('Cleaning up browser processes...');
-    execSync('pkill -f chromium || true', { stdio: 'inherit' });
-    execSync('pkill -f chrome || true', { stdio: 'inherit' });
-
-    // Kill any remaining Node processes related to Playwright
-    execSync('pkill -f playwright || true', { stdio: 'inherit' });
+    // Only Playwright-managed browsers: they live under an ms-playwright
+    // directory on Linux and macOS. A bare 'chrome' pattern would also kill
+    // the developer's own browser when tests run on the host.
+    console.log('Cleaning up Playwright browser processes...');
+    // '[m]' keeps the pattern from matching this pkill's own shell.
+    execSync("pkill -f '[m]s-playwright/' || true", { stdio: 'inherit' });
 
     console.log('Browser cleanup completed');
   } catch {

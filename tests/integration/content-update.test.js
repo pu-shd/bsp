@@ -60,8 +60,8 @@ describe('Content Update API Tests', () => {
     try {
       console.log('Performing final cleanup...');
       const { execSync } = require('child_process');
-      execSync('pkill -f chromium || true');
-      execSync('pkill -f chrome || true');
+      // Only Playwright-managed browsers, never the developer's own Chrome.
+      execSync("pkill -f '[m]s-playwright/' || true");
       console.log('Final cleanup completed');
     } catch (error) {
       console.log('Final cleanup completed (some processes may not have been running)');
