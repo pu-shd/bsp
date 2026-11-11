@@ -1287,11 +1287,12 @@ Schemas are automatically loaded based on content type machine name, from
 **Site-specific schemas (`schemas/sites`).** This is a git submodule
 (`pu-orfe/bsp-site-schemas`) laid out as `<hostname>/<contentType>.json`.
 The loader does not read it today, so the generic schemas above are what
-runs against every site. The submodule's own README describes a
-site-first lookup that does not exist. Keep that in mind before you enable
-one: for example, the `orfe.princeton.edu` `ps_events` schema has no
-`event_audience` field, and `examples/mappings/ps-events-symposium.json`
-depends on that field.
+runs against every site. Reconcile the two before adding a site-first
+lookup, or it will change live behaviour. In `ps_events`, for example, the
+site schemas type `event_audience` as a plain `select` (generic:
+`hidden_select`) and the start/end times as `text` (generic: `time`).
+`examples/mappings/ps-events-symposium.json` writes all of these fields.
+The submodule's README lists the differences.
 
 ---
 
