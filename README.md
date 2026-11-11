@@ -19,8 +19,24 @@ An API for the Drupal UI when the actual API is MIA.
 - Docker & Docker Compose
 - Node.js 26 (for local development and JS examples; `nvm use` reads `.nvmrc`)
 - Conda/Miniconda (for Python examples)
+- A GitHub SSH key with read access to this repo and to the private
+  `pu-orfe/bsp-site-schemas` repo (the `schemas/sites` submodule)
 
-### 1. Launch Platform
+### 1. Clone and Configure
+
+```bash
+git clone --recurse-submodules git@github.com:pu-shd/bsp.git
+cd bsp
+
+# Create your local config, then set BASE_URL (and any headers) in .env
+cp example.env .env
+```
+
+`.env` is gitignored. The server refuses to start if `BASE_URL` is missing,
+malformed, or still the template placeholder. `docker-compose` stops earlier
+if `.env` does not exist at all.
+
+### 2. Launch Platform
 
 ```bash
 # Start the containerized platform
@@ -34,7 +50,7 @@ curl http://localhost:3000/health
 > `BSP_NOVNC_PORT` and `BSP_VNC_PORT` in `.env`. The examples below use the
 > defaults (3000 / 8080). See [Host Ports](#host-ports).
 
-### 2. Authenticate
+### 3. Authenticate
 
 ```bash
 # Start interactive browser session
@@ -49,7 +65,7 @@ open http://localhost:8080/vnc.html
 curl -X POST http://localhost:3000/login/save
 ```
 
-### 3. Use the API
+### 4. Use the API
 
 ```bash
 # Load saved session
@@ -1129,18 +1145,16 @@ await mockApi.request('POST', '/login/interactive');
 
 ### Environment Variables (.env)
 
+`example.env` is the template and documents every setting. Copy it with
+`cp example.env .env`. `DISPLAY`, `NODE_ENV` and `NOVNC_URL` are set by
+`docker-compose.yml`, so they do not go in `.env`.
+
 ```bash
-# Base URL of the Drupal site (REQUIRED)
-BASE_URL=https://example.com
+# Base URL of the Drupal site (REQUIRED, must be http(s))
+BASE_URL=https://your-site.princeton.edu
 
-# Default login URL (for reference/programmatic navigation)
-DEFAULT_LOGIN_URL=https://example.com/login
-
-# Display settings
-DISPLAY=:99
-
-# Application settings
-NODE_ENV=production
+# Login page, if it is not at BASE_URL (optional)
+# DEFAULT_LOGIN_URL=https://your-site.princeton.edu/user/login
 
 # Debug logging (set to 'true' to enable detailed logging)
 # DEBUG_LOGGING=true
@@ -1267,7 +1281,17 @@ Content type schemas define field extraction and updates. Schemas live in `schem
 }
 ```
 
-Schemas are automatically loaded based on content type machine name.
+Schemas are automatically loaded based on content type machine name, from
+`schemas/<contentType>.json` only.
+
+**Site-specific schemas (`schemas/sites`).** This is a git submodule
+(`pu-orfe/bsp-site-schemas`) laid out as `<hostname>/<contentType>.json`.
+The loader does not read it today, so the generic schemas above are what
+runs against every site. The submodule's own README describes a
+site-first lookup that does not exist. Keep that in mind before you enable
+one: for example, the `orfe.princeton.edu` `ps_events` schema has no
+`event_audience` field, and `examples/mappings/ps-events-symposium.json`
+depends on that field.
 
 ---
 
@@ -1317,6 +1341,41 @@ curl -X POST http://localhost:3000/login/save
 
 ---
 
+## ♻️ Fresh Machine / Restore
+
+Everything needed to *build and run* BSP is in git. These things are not,
+so plan to recreate them after wiping a machine or setting up a new one:
+
+| Not in git | How to get it back |
+|------------|--------------------|
+| GitHub **SSH** key with access to `pu-shd/bsp` and `pu-orfe/bsp-site-schemas` | Generate a key and add it to your GitHub account; `gh auth login` if you use `gh` |
+| Docker, Node 26 (`nvm install`), Conda | Install per [Prerequisites](#prerequisites) |
+| `.env` (your `BASE_URL`, `EXTRA_HTTP_HEADERS`, ports) | `cp example.env .env` and re-enter your values. Keep a copy of them outside the repo, e.g. in a password manager |
+| `storage/storageState.json` (logged-in Drupal session) | Log in again through VNC; see [Authenticate](#3-authenticate) |
+| Your working CSVs, and `*-report.json` run reports | Only what you committed or backed up elsewhere. Report files are gitignored |
+
+Restore steps:
+
+```bash
+git clone --recurse-submodules git@github.com:pu-shd/bsp.git
+cd bsp
+# Already cloned without the submodule? Fetch it now:
+git submodule update --init
+
+cp example.env .env          # then edit BASE_URL and the rest
+docker-compose up -d
+curl http://localhost:3000/health
+
+# Log in again and save the session
+curl -X POST http://localhost:3000/login/interactive
+open http://localhost:8080/vnc.html
+curl -X POST http://localhost:3000/login/save
+```
+
+If you use the Python examples, also run `conda env create -f environment.yml`.
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -1341,6 +1400,7 @@ curl -X POST http://localhost:3000/login/save
 │   ├── mappings/                  # Field mapping specs
 │   └── templates/                 # Starter CSV files (see its README)
 ├── schemas/                       # Content type field schemas
+│   └── sites/                     # Site-specific schemas (submodule, not yet loaded)
 ├── tests/
 │   ├── integration/               # API integration tests
 │   ├── unit/                      # Unit tests
@@ -1350,7 +1410,8 @@ curl -X POST http://localhost:3000/login/save
 ├── Dockerfile                     # Multi-stage container build
 ├── docker-compose.yml             # Development orchestration
 ├── supervisord.conf               # Process management
-└── .env                           # Environment configuration
+├── example.env                    # Configuration template (copy to .env)
+└── .env                           # Your local configuration (gitignored)
 ```
 
 ---

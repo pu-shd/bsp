@@ -38,6 +38,7 @@ services:
       - test_storage:/app/storage  # Persistent browser contexts
       - test_tmp:/tmp               # Screenshots and artifacts
       - ./.github:/app/.github:ro   # CI config checked by tests; excluded from images by .dockerignore
+      - ./.gitignore:/app/.gitignore:ro  # Ignore rules checked by tests; also excluded from images
     environment:
       - NODE_ENV=test
       - DISPLAY=:99
