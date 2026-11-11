@@ -23,3 +23,7 @@ Thumbs.db
 
 # Run reports written by the example scripts
 *-report.json
+
+# Local agent settings and notes (per-developer, never published)
+.claude/
+CLAUDE.md
