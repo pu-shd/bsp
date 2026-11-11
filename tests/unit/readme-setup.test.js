@@ -38,4 +38,20 @@ describe('README covers setting up from a fresh clone', () => {
   test('the schema docs say how schemas/sites is (not) used', () => {
     expect(section('Architecture')).toMatch(/schemas\/sites[\s\S]*not read/);
   });
+
+  test('the schema docs say how to change and pull in site schemas', () => {
+    const architecture = section('Architecture');
+    expect(architecture).toContain('git submodule update --remote schemas/sites');
+    expect(architecture).toMatch(/pu-orfe\/bsp-site-schemas[\s\S]*(PR|pull request)/);
+  });
+
+  test.each(['Creating Custom Schemas', 'Adding New Content Type Support'])(
+    '"%s" warns that schemas/sites is not loaded',
+    (heading) => {
+      const start = README.indexOf(heading);
+      expect(start).toBeGreaterThanOrEqual(0);
+      const end = README.indexOf('\n#', start + heading.length);
+      expect(README.slice(start, end === -1 ? undefined : end)).toMatch(/schemas\/sites[\s\S]*not (read|loaded)/);
+    },
+  );
 });

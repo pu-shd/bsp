@@ -200,6 +200,9 @@ Schemas define the fields, selectors, types, and requirements for each content t
 3. Define each field with its selector, type, and whether it's required
 4. The API will automatically load and use the schema for validation
 
+Put the file directly in `schemas/`. Files under `schemas/sites/<hostname>/`
+are not read by the loader yet (see [Schema System](#schema-system)).
+
 **Supported Field Types:**
 - `text` - Single-line text input
 - `textarea` - Multi-line text area
@@ -1294,6 +1297,23 @@ site schemas type `event_audience` as a plain `select` (generic:
 `examples/mappings/ps-events-symposium.json` writes all of these fields.
 The submodule's README lists the differences.
 
+**Changing a site schema.** The files live in their own repo, so a change
+takes two steps:
+
+1. Commit to `pu-orfe/bsp-site-schemas` and open a PR there. Its CI checks
+   that each file is valid JSON, that `contentType` and `site` match the
+   path, and that every field type is one BSP handles.
+2. After it merges, move BSP's pointer to the new commit and open a BSP PR:
+
+```bash
+git submodule update --remote schemas/sites
+git add schemas/sites
+git commit -m "Bump schemas/sites"
+```
+
+You can make step 1 inside `schemas/sites` itself. It is a normal clone of
+the schemas repo, so branch, commit and push from there.
+
 ---
 
 ## 🔍 Troubleshooting
@@ -1437,6 +1457,9 @@ docker-compose up --build
 1. Create schema file in `schemas/` directory (e.g., `schemas/custom_type.json`)
 2. Define field selectors and types
 3. Schema is automatically loaded for read/update operations
+
+Generic schemas go in `schemas/`. A file in `schemas/sites` is not loaded
+yet, so do not add one there expecting BSP to use it.
 
 ---
 
