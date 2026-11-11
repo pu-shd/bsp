@@ -4,9 +4,7 @@ node_modules/
 npm-debug.log*
 
 # Local secrets and state
-.env
-.env.*
-!.env.example
+.env*
 storage/
 tmp/
 *.log

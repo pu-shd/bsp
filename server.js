@@ -1,3 +1,18 @@
+const { validateConfig } = require('./src/config');
+
+// Fail fast on bad configuration. Tests import the app with their own env and
+// never start the listener, so they skip this check.
+if (process.env.NODE_ENV !== 'test') {
+  const configErrors = validateConfig(process.env);
+  if (configErrors.length > 0) {
+    console.error('Invalid configuration:');
+    for (const message of configErrors) {
+      console.error(`  - ${message}`);
+    }
+    process.exit(1);
+  }
+}
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
